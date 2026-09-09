@@ -9,14 +9,17 @@ const props = defineProps<{
 
 const hasError = ref(false)
 
-watch(() => props.src, () => {
-  hasError.value = false
-})
+watch(
+  () => props.src,
+  () => {
+    hasError.value = false
+  },
+)
 
 const sizeClass = {
-  sm: 'w-20',
-  md: 'w-32',
-  lg: 'w-48',
+  sm: 'w-32',
+  md: 'w-48',
+  lg: 'w-64',
 }
 </script>
 

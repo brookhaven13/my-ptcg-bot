@@ -22,9 +22,13 @@ const editingDeck = ref<Deck | null>(null)
 const submitting = ref(false)
 const errorMsg = ref('')
 
-watch(deckOwner, (owner) => {
-  deckStore.fetchDecks(owner)
-}, { immediate: true })
+watch(
+  deckOwner,
+  (owner) => {
+    deckStore.fetchDecks(owner)
+  },
+  { immediate: true },
+)
 
 function openCreateDialog() {
   editingDeck.value = null
@@ -43,7 +47,12 @@ async function handleSubmitDeck(name: string, rawList: string) {
   errorMsg.value = ''
   try {
     if (editingDeck.value) {
-      const updated = await deckStore.updateDeck(editingDeck.value.id, name, deckOwner.value, rawList)
+      const updated = await deckStore.updateDeck(
+        editingDeck.value.id,
+        name,
+        deckOwner.value,
+        rawList,
+      )
       deckListRef.value?.refreshDeck(updated)
     } else {
       await deckStore.createDeck(name, deckOwner.value, rawList)
@@ -63,17 +72,23 @@ async function handleDeleteDeck(id: number) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 max-w-3xl">
+  <div class="flex flex-col gap-4">
     <h1 class="text-2xl font-bold">卡牌設定</h1>
 
-    <div class="flex items-center gap-4">
-      <SelectButton v-model="deckOwner" :options="ownerOptions" optionLabel="label" optionValue="value" />
+    <div class="flex justify-between items-center gap-4">
+      <SelectButton
+        v-model="deckOwner"
+        :options="ownerOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
       <Button label="新增牌組" size="small" @click="openCreateDialog" />
     </div>
 
     <DeckList
       ref="deckListRef"
       :decks="deckOwner === 'player' ? deckStore.playerDecks : deckStore.aiDecks"
+      :loading="deckStore.loading"
       @edit="openEditDialog"
       @delete="handleDeleteDeck"
     />

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
+import ProgressSpinner from 'primevue/progressspinner'
 import Card from 'primevue/card'
+import Skeleton from 'primevue/skeleton'
 import { ref } from 'vue'
 import { deckApi } from '@/api/deckApi'
 import DeckCardGrid from './DeckCardGrid.vue'
@@ -8,6 +10,7 @@ import type { Deck } from '@/types/deck'
 
 defineProps<{
   decks: Deck[]
+  loading?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -63,7 +66,17 @@ defineExpose({ refreshDeck })
 
 <template>
   <div class="flex flex-col gap-3">
-    <p v-if="decks.length === 0" class="text-gray-500">尚無牌組</p>
+    <div v-if="loading && decks.length === 0">
+      <Card>
+        <template #title>
+          <div class="flex items-center justify-between">
+            <Skeleton width="40%" height="2rem" />
+          </div>
+        </template>
+      </Card>
+    </div>
+
+    <p v-else-if="decks.length === 0" class="text-gray-500">尚無牌組</p>
 
     <Card v-for="deck in decks" :key="deck.id">
       <template #title>
@@ -79,22 +92,26 @@ defineExpose({ refreshDeck })
       </template>
 
       <template #content v-if="expandedId === deck.id">
-        <div v-if="loadingId === deck.id" class="text-center py-4 text-gray-400">
-          <i class="pi pi-spinner pi-spin mr-2" />載入中...
+        <div v-if="loadingId === deck.id">
+          <div class="flex flex-col items-center gap-2">
+            <ProgressSpinner
+              style="width: 2rem; height: 2rem"
+              :strokeWidth="'8'"
+              class="inline-block mr-2 align-middle w-4 pv-spinner-slate"
+            />
+            <span class="text-zinc-500">載入中...</span>
+          </div>
         </div>
         <template v-else-if="loadedDecks.get(deck.id)?.cards?.length">
           <div class="py-4">
-
             <DeckCardGrid :cards="loadedDecks.get(deck.id)!.cards!" />
           </div>
         </template>
-        <div v-else class="text-center py-4 text-gray-400">
-          此牌組沒有卡片
-        </div>
+        <div v-else class="text-center py-4 text-gray-400">此牌組沒有卡片</div>
 
         <div class="flex items-center justify-between gap-4 border-t border-gray-200">
           <span class="text-sm font-normal text-gray-500">{{ deck.cardCount ?? 0 }} 張</span>
-          <div class="flex gap-4 pt-3 ">
+          <div class="flex gap-4 pt-3">
             <Button
               label="編輯"
               size="small"
@@ -105,6 +122,7 @@ defineExpose({ refreshDeck })
               label="刪除"
               size="small"
               severity="danger"
+              variant="outlined"
               text
               @click="handleDelete(deck.id, $event)"
             />
