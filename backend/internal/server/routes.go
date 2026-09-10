@@ -11,6 +11,7 @@ import (
 func RegisterRoutes(r chi.Router, s *store.Store, tc *tcgdex.Client) {
 	cardHandler := handler.NewCardHandler(s, tc)
 	deckHandler := handler.NewDeckHandler(s, tc)
+	battleHandler := handler.NewBattleHandler(s)
 
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/cards/{id}", cardHandler.GetCard)
@@ -22,5 +23,12 @@ func RegisterRoutes(r chi.Router, s *store.Store, tc *tcgdex.Client) {
 		r.Get("/decks/{id}", deckHandler.GetDeck)
 		r.Put("/decks/{id}", deckHandler.UpdateDeck)
 		r.Delete("/decks/{id}", deckHandler.DeleteDeck)
+
+		r.Post("/battle/start", battleHandler.StartBattle)
+		r.Get("/battle/games", battleHandler.ListGames)
+		r.Post("/battle/resume/{gameId}", battleHandler.ResumeGame)
+		r.Delete("/battle/{gameId}", battleHandler.DeleteGame)
+		r.Get("/battle/{gameId}", battleHandler.GetGameState)
+		r.Get("/battle/ws/{gameId}", battleHandler.HandleWS)
 	})
 }

@@ -13,6 +13,10 @@ export interface GameState {
   ai: PlayerState
   winner?: string
   winReason?: string
+  firstTurn?: boolean
+  energyAttached?: boolean
+  playerDeckId?: number
+  aiDeckId?: number
 }
 
 export interface PlayerState {
@@ -22,6 +26,9 @@ export interface PlayerState {
   bench: BoardPokemon[]
   prizes: CardInstance[]
   discard: CardInstance[]
+  cardPool?: CardInstance[]
+  prizesRemaining?: number
+  supporterPlayed?: boolean
 }
 
 export interface CardInstance {

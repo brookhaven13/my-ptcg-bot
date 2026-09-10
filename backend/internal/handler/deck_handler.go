@@ -107,7 +107,8 @@ func (h *DeckHandler) resolveCards(entries []deckEntry) []model.DeckCard {
 		cardID := entry.SetCode + "-" + entry.Number
 
 		cached, _ := h.store.GetCard(cardID)
-		if cached != nil && cached.SetID == entry.SetCode && cached.LocalID == entry.Number && cached.Name == entry.Name {
+		hasCompleteData := cached != nil && cached.DataJSON != "{}" && cached.Category != ""
+		if hasCompleteData && cached.SetID == entry.SetCode && cached.LocalID == entry.Number && cached.Name == entry.Name {
 			cards = append(cards, model.DeckCard{CardID: cardID, Quantity: entry.Quantity})
 			continue
 		}
@@ -137,7 +138,7 @@ func (h *DeckHandler) resolveCards(entries []deckEntry) []model.DeckCard {
 			LocalID:  entry.Number,
 			SetID:    entry.SetCode,
 			Name:     entry.Name,
-			Category: category,
+			Category: normalizeCategory(category),
 			DataJSON: dataJSON,
 			ImageURL: imageURL,
 		}
@@ -191,6 +192,9 @@ func (h *DeckHandler) GetDeck(w http.ResponseWriter, r *http.Request) {
 			detail.ImageURL = cached.ImageURL
 			detail.Name = cached.Name
 			detail.ID = cached.ID
+			if detail.Category == "" && cached.Category != "" {
+				detail.Category = cached.Category
+			}
 			deck.Cards[i].Card = &detail
 		}
 	}
@@ -348,6 +352,16 @@ func parseSimpleLine(fields []string, category string) *deckEntry {
 		Number:   name,
 		Category: category,
 	}
+}
+
+func normalizeCategory(cat string) string {
+	switch cat {
+	case "Pokémon", "pokémon":
+		return "Pokemon"
+	case "Entraîneur", "Dresseur":
+		return "Trainer"
+	}
+	return cat
 }
 
 func addEntry(entries *[]deckEntry, seen map[string]int, e deckEntry) {

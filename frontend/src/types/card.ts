@@ -2,7 +2,7 @@ export interface CardDetail {
   id: string
   localId: string
   name: string
-  category: 'Pokemon' | 'Trainer' | 'Energy'
+  category: string
   hp?: number
   types?: string[]
   stage?: string

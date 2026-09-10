@@ -32,6 +32,7 @@ func (s *Store) SaveCard(card *model.Card) error {
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 ON CONFLICT (id) DO UPDATE SET
 		   name = EXCLUDED.name,
+		   category = EXCLUDED.category,
 		   data_json = EXCLUDED.data_json,
 		   image_url = EXCLUDED.image_url`,
 		card.ID, card.LocalID, card.SetID, card.Name, card.Category, card.DataJSON, card.ImageURL,
